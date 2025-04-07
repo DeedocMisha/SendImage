@@ -18,7 +18,7 @@ RUN yarn install
 COPY . .
 
 # Собираем проект
-RUN npm run build
+RUN yarn build
 
 # Экспонируем порт, который слушает NestJS
 EXPOSE 4000

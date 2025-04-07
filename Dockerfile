@@ -4,29 +4,20 @@ FROM node:18
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем Yarn-файлы и манифест
-COPY package.json yarn.lock .yarnrc.yml ./
+# Копируем манифесты
+COPY package.json yarn.lock ./
 
-# Копируем PnP данные
-COPY .yarn/ .yarn/
-
-# Включаем Corepack
-RUN corepack enable
-
-# Активируем нужную версию Yarn (будет взята из packageManager в package.json)
-RUN corepack prepare yarn@4.7.0 --activate
-
-# Устанавливаем зависимости
+# Устанавливаем зависимости (используется node_modules)
 RUN yarn install
 
-# Копируем остальной проект
+# Копируем остальные файлы проекта
 COPY . .
 
 # Собираем проект
 RUN yarn build
 
-# Экспонируем порт, который слушает NestJS
+# Экспонируем порт
 EXPOSE 4000
 
-# Запускаем приложение из скомпилированного файла
+# Запускаем приложение
 CMD ["node", "dist/main.js"]

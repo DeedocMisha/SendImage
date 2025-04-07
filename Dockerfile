@@ -1,32 +1,32 @@
-# Используем официальный образ Node.js
-FROM node:18
+# Этап сборки
+FROM node:18 AS builder
 
-# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем манифесты
-COPY package.json yarn.lock ./
-
-# Включаем Corepack для Yarn
+# Enable corepack (to use the correct Yarn version)
 RUN corepack enable
 
-# Активация нужной версии Yarn (если она поддерживается Corepack)
-RUN corepack prepare yarn@4.7.0 --activate
-
-# Очищаем кеш Yarn перед установкой зависимостей
-RUN yarn cache clean
-
-# Устанавливаем зависимости
-RUN yarn install --frozen-lockfile
-
-# Копируем остальные файлы проекта
 COPY . .
+RUN yarn install
 
-# Собираем проект
-RUN yarn build
+# Копируем исходный код и собираем проект
 
-# Экспонируем порт
+RUN yarn build  # Эта команда создаст папку dist/
+
+# Этап запуска
+FROM node:18
+
+WORKDIR /app
+
+# Enable corepack in the final image too
+RUN corepack enable
+
+# Копируем только необходимое
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+
 EXPOSE 4000
 
-# Запускаем приложение
 CMD ["node", "dist/main.js"]

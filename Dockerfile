@@ -7,7 +7,16 @@ WORKDIR /app
 # Копируем манифесты
 COPY package.json yarn.lock ./
 
-# Устанавливаем зависимости (используется node_modules)
+# Включаем Corepack, чтобы использовать нужную версию Yarn
+RUN corepack enable
+
+# Активируем нужную версию Yarn (4.7.0)
+RUN corepack prepare yarn@4.7.0 --activate
+
+# Очищаем кеш Yarn перед установкой зависимостей
+RUN yarn cache clean
+
+# Устанавливаем зависимости
 RUN yarn install
 
 # Копируем остальные файлы проекта

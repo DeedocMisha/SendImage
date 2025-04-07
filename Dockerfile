@@ -4,8 +4,12 @@ FROM node:18
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем package.json и устанавливаем зависимости
-COPY package*.json ./
+# Копируем Yarn-файлы и манифест
+COPY package.json yarn.lock .yarnrc.yml ./
+
+# Копируем PnP данные
+COPY .yarn/ .yarn/
+
 # Включаем Corepack
 RUN corepack enable
 
@@ -14,7 +18,8 @@ RUN corepack prepare yarn@4.7.0 --activate
 
 # Устанавливаем зависимости
 RUN yarn install
-# Копируем остальные файлы проекта
+
+# Копируем остальной проект
 COPY . .
 
 # Собираем проект
@@ -25,4 +30,3 @@ EXPOSE 4000
 
 # Запускаем приложение из скомпилированного файла
 CMD ["node", "dist/main.js"]
-

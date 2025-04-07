@@ -1,14 +1,16 @@
-  import { NestFactory } from '@nestjs/core';
-  import { AppModule } from './App.module';
-  import { join } from 'path';
-  import * as express from 'express';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './App.module';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
-  async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-    // Статическая подача папки 'public'
-    app.use('/Jongler/static', express.static(join(__dirname, '..', 'public')));
+  // Используем встроенный метод вместо express.static
+  app.useStaticAssets(join(__dirname, '..', 'public'), {
+    prefix: '/static/', // Тот же URL-префикс
+  });
 
-    await app.listen(4000);
-  }
-  bootstrap();
+  await app.listen(4000);
+}
+bootstrap();
